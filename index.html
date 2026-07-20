@@ -21,6 +21,15 @@
 
   * { box-sizing: border-box; }
 
+  img{
+    display:block;
+    max-width:100%;
+    width:100%;
+    height:auto;
+    object-fit:cover;
+  }
+
+
   html, body {
     margin: 0;
     padding: 0;
@@ -29,7 +38,8 @@
     background: var(--midnight);
     font-family: 'Quicksand', sans-serif;
     color: var(--cream);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   /* --- LOCK SCREEN --- */
@@ -56,7 +66,8 @@
   .stars {
     position: absolute;
     inset: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     pointer-events: none;
   }
   .star {
@@ -399,7 +410,7 @@
     transform: rotate(-2deg);
     border-radius: 2px;
     width: 100%;
-    max-width: 200px;
+    max-width:250px;
   }
   .polaroid-frame img, .picnimahal-img {
     width: 100%;
@@ -426,7 +437,8 @@
   /* --- SCREEN 4: LETTER 2 (VIRTUAL BOUQUET FIX) --- */
   .flower-img {
     width: 100%;
-    max-width: 130px;
+    width:min(45vw,170px);
+    max-width:170px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 50%;
@@ -470,8 +482,9 @@
     background: #fff;
     padding: 6px 6px 18px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    width: 28vw;
-    max-width: 110px;
+    flex:1 1 100px;
+    max-width:140px;
+    min-width:90px;
     border-radius: 2px;
   }
   .collage-photo img {
@@ -554,6 +567,15 @@
     animation: fadeIn 1.5s ease forwards;
     max-height: 180px;
     overflow-y: auto;
+  }
+
+  
+  @media (max-width:768px){
+    .envelope-grid{grid-template-columns:1fr;}
+    .btn-next,.btn-back{width:100%;max-width:260px;}
+    .pixel-cake{width:140px;}
+    .sticky-note{max-width:100%;}
+    .bouquet-list{max-height:none;}
   }
 
   @media (prefers-reduced-motion: reduce) {
