@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Locked Wish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight: #14132B;
+    --midnight-2: #1D1B3A;
+    --gold: #F5C361;
+    --gold-dim: #7A6636;
+    --pink: #F0A6A6;
+    --cream: #FBF3E4;
+    --plum: #6B5B95;
+    --error: #E27D7D;
+    --card-bg: rgba(29, 27, 58, 0.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--midnight);
+    font-family: 'Quicksand', sans-serif;
+    color: var(--cream);
+    overflow-x: hidden;
+  }
+
+  /* --- LOCK SCREEN --- */
+  #lock-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(107,91,149,0.35), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(240,166,166,0.15), transparent 45%),
+      var(--midnight);
+    transition: opacity 0.9s ease, filter 0.9s ease;
+    z-index: 100;
+  }
+
+  #lock-screen.unlocking {
+    opacity: 0;
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--cream);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: twinkle 3.5s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.8; }
+  }
+
+  .card {
+    position: relative;
+    width: min(420px, 88vw);
+    padding: 44px 32px 36px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    color: var(--pink);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--cream);
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+    line-height: 1.25;
+  }
+
+  .sub {
+    color: rgba(251,243,228,0.55);
+    font-size: 0.85rem;
+    margin: 0 0 34px;
+  }
+
+  .flames {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 34px;
+  }
+
+  .flame {
+    width: 14px;
+    height: 20px;
+    position: relative;
+  }
+
+  .flame svg {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+
+  .flame-glow { fill: var(--gold-dim); transition: fill 0.3s ease; }
+
+  .flame.lit .flame-glow {
+    fill: var(--gold);
+    filter: drop-shadow(0 0 6px rgba(245,195,97,0.9));
+  }
+
+  .flame.lit svg {
+    animation: flicker 1.4s ease-in-out infinite;
+  }
+
+  @keyframes flicker {
+    0%, 100% { transform: scaleY(1) rotate(0deg); }
+    25% { transform: scaleY(1.08) rotate(-2deg); }
+    50% { transform: scaleY(0.95) rotate(2deg); }
+    75% { transform: scaleY(1.05) rotate(-1deg); }
+  }
+
+  .flames.shake {
+    animation: shake 0.5s ease;
+  }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-5px); }
+    40%, 60% { transform: translateX(5px); }
+  }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .key {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid rgba(251,243,228,0.14);
+    background: rgba(251,243,228,0.03);
+    color: var(--cream);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+    user-select: none;
+  }
+
+  .key:hover {
+    background: rgba(245,195,97,0.1);
+    border-color: rgba(245,195,97,0.4);
+  }
+
+  .key:active {
+    transform: scale(0.92);
+  }
+
+  .key.action {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: rgba(251,243,228,0.45);
+    font-weight: 600;
+  }
+
+  .message {
+    min-height: 20px;
+    margin-top: 22px;
+    font-size: 0.8rem;
+    color: var(--error);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .message.show { opacity: 1; }
+
+  .unlock-toast {
+    position: fixed;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: rgba(20,19,43,0.9);
+    border: 1px solid rgba(245,195,97,0.4);
+    color: var(--gold);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 10px 22px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    z-index: 120;
+    pointer-events: none;
+  }
+  .unlock-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* --- MAIN CONTENT SURPRISE APP --- */
+  #reveal {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, var(--midnight-2), var(--midnight));
+    opacity: 0;
+    display: none;
+    z-index: 5;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  #reveal.show {
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-container {
+    width: min(700px, 95vw);
+    min-height: 80vh;
+    background: var(--card-bg);
+    border: 1px solid rgba(251, 243, 228, 0.08);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    padding: 40px 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page {
+    display: none;
+    width: 100%;
+    animation: fadeIn 0.6s ease forwards;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .page.active {
+    display: flex;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-back {
+    margin-top: 30px;
+    background: transparent;
+    border: 1px solid rgba(251, 243, 228, 0.3);
+    color: var(--cream);
+    padding: 8px 24px;
+    font-size: 0.85rem;
+    font-family: 'Quicksand', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-back:hover {
+    background: var(--cream);
+    color: var(--midnight);
+  }
+
+  /* --- SCREEN 1: WELCOME SCREEN --- */
+  .welcome-envelope {
+    width: 180px;
+    height: auto;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .welcome-title {
+    font-family: 'Fraunces', serif;
+    font-size: 3.2rem;
+    font-style: italic;
+    color: var(--cream);
+    margin: 10px 0 30px;
+    line-height: 1.1;
+  }
+  .btn-next {
+    background: var(--gold);
+    color: var(--midnight);
+    border: none;
+    padding: 12px 44px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 195, 97, 0.3);
+    transition: all 0.3s ease;
+  }
+  .btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 195, 97, 0.5);
+  }
+
+  /* --- SCREEN 2: DASHBOARD MATRIX --- */
+  .dashboard-title {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  .envelope-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    width: 100%;
+    max-width: 500px;
+  }
+  .envelope-item {
+    background: rgba(251, 243, 228, 0.04);
+    border: 1px solid rgba(251, 243, 228, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .envelope-item:hover {
+    background: rgba(245, 195, 97, 0.05);
+    border-color: var(--gold);
+    transform: translateY(-5px);
+  }
+  .envelope-item svg {
+    width: 70px;
+    height: 50px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease;
+  }
+  .envelope-item:hover svg {
+    transform: scale(1.1);
+  }
+  .envelope-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* --- SCREEN 3: LETTER 1 --- */
+  .letter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+  .polaroid-frame {
+    background: white;
+    padding: 14px 14px 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    transform: rotate(-3deg);
+    border-radius: 2px;
+    max-width: 260px;
+    transition: transform 0.3s ease;
+  }
+  .polaroid-frame:hover {
+    transform: rotate(0deg) scale(1.03);
+  }
+  .polaroid-placeholder {
+    width: 232px;
+    height: 232px;
+    background: #e0e0e0;
+    object-fit: cover;
+  }
+  .sticky-note {
+    background: #fff9c4;
+    color: #333;
+    font-family: 'Quicksand', sans-serif;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+    transform: rotate(2deg);
+    max-width: 340px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  /* --- SCREEN 4: LETTER 2 (VIRTUAL BOUQUET) --- */
+  .bouquet-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    margin-bottom: 15px;
+    border: 2px solid var(--pink);
+  }
+  .bouquet-list {
+    text-align: left;
+    max-width: 480px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bouquet-list li {
+    background: rgba(251, 243, 228, 0.05);
+    margin-bottom: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border-left: 3px solid var(--pink);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  /* --- SCREEN 5: LETTER 3 (MEMORIES COLLAGE) --- */
+  .collage-bg {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .collage-photo {
+    background: #fff;
+    padding: 8px 8px 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    max-width: 140px;
+    border-radius: 2px;
+  }
+  .collage-photo img {
+    width: 124px;
+    height: 124px;
+    background: #ccc;
+    object-fit: cover;
+  }
+  .collage-photo:nth-child(even) { transform: rotate(4deg); }
+  .collage-photo:nth-child(odd) { transform: rotate(-4deg); }
+
+  /* --- SCREEN 6: PIXEL CAKE & SEQUENTIAL BLOW STYLING --- */
+  .pixel-cake-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+    cursor: pointer;
+  }
+  
+  .pixel-cake {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 240px;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+    transition: transform 0.2s ease;
+  }
+  .pixel-cake:hover { transform: scale(1.02); }
+
+  .pixel-flame {
+    animation: pixelFlicker 0.6s steps(2, start) infinite;
+    transform-origin: center;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  /* Individual classes to extinguish candles sequentially */
+  .pixel-cake-wrapper.extinguish-0 #flame-0 {
+    opacity: 0 !important;
+    transform: scale(0.2) translateY(-6px);
+  }
+  .pixel-cake-wrapper.extinguish-1 #flame-1 {
+    opacity: 0 !important;
+    transform: scale(0.2) translateY(-6px);
+  }
+  .pixel-cake-wrapper.extinguish-2 #flame-2 {
+    opacity: 0 !important;
+    transform: scale(0.2) translateY(-6px);
+  }
+  .pixel-cake-wrapper.extinguish-3 #flame-3 {
+    opacity: 0 !important;
+    transform: scale(0.2) translateY(-6px);
+  }
+
+  @keyframes pixelFlicker {
+    0% { opacity: 1; transform: translateY(0); }
+    50% { opacity: 0.4; transform: translateY(-1px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .mic-status {
+    font-size: 0.82rem;
+    color: var(--pink);
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .final-letter {
+    display: none;
+    max-width: 480px;
+    background: rgba(251, 243, 228, 0.05);
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px dashed var(--gold);
+    margin-top: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: fadeIn 1.5s ease forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pixel-flame, .star, .welcome-envelope { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN CONSTRUCT -->
+<div id="lock-screen">
+  <div class="stars" id="stars"></div>
+  <div class="card">
+    <div class="eyebrow">A gift, locked in time</div>
+    <h1>Enter the date<br>only you would know</h1>
+    <p class="sub">6 digits &mdash; MM DD YY</p>
+
+    <div class="flames" id="flames"></div>
+
+    <div class="keypad" id="keypad">
+      <div class="key" data-num="1">1</div>
+      <div class="key" data-num="2">2</div>
+      <div class="key" data-num="3">3</div>
+      <div class="key" data-num="4">4</div>
+      <div class="key" data-num="5">5</div>
+      <div class="key" data-num="6">6</div>
+      <div class="key" data-num="7">7</div>
+      <div class="key" data-num="8">8</div>
+      <div class="key" data-num="9">9</div>
+      <div class="key action" id="clear-key">clear</div>
+      <div class="key" data-num="0">0</div>
+      <div class="key action" id="back-key">&larr;</div>
+    </div>
+
+    <div class="message" id="message">that's not quite the date</div>
+  </div>
+</div>
+
+<div class="unlock-toast" id="toast">candles lit &mdash; unlocked</div>
+
+<!-- INTEGRATED SURPRISE WEBSITE APPLICATION -->
+<div id="reveal">
+  <div class="app-container">
+
+    <!-- PAGE 1: LETTERS FOR YOU WELCOME -->
+    <div class="page active" id="page-welcome">
+      <svg class="welcome-envelope" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 10H95V70H5V10Z" fill="#D9534F"/>
+        <path d="M5 10L50 45L95 10" stroke="#FBF3E4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="50" cy="45" r="7" fill="#F5C361"/>
+      </svg>
+      <div class="eyebrow">Interactive Digital Package</div>
+      <h2 class="welcome-title">Letters<br>For You</h2>
+      <button class="btn-next" onclick="navigateTo('page-dashboard')">Next</button>
+    </div>
+
+    <!-- PAGE 2: GRID MENU MATRIX -->
+    <div class="page" id="page-dashboard">
+      <h3 class="dashboard-title">Select a letter below</h3>
+      <div class="envelope-grid">
+        <div class="envelope-item" onclick="navigateTo('page-letter1')">
+          <svg viewBox="0 0 100 70"><path d="M5 5H95V65H5V5Z" fill="#D9534F"/><path d="M5 5L50 38L95 5" stroke="#FBF3E4" stroke-width="3"/></svg>
+          <div class="envelope-label">Letter 1</div>
+        </div>
+        <div class="envelope-item" onclick="navigateTo('page-letter2')">
+          <svg viewBox="0 0 100 70"><path d="M5 5H95V65H5V5Z" fill="#D9534F"/><path d="M5 5L50 38L95 5" stroke="#FBF3E4" stroke-width="3"/></svg>
+          <div class="envelope-label">Letter 2</div>
+        </div>
+        <div class="envelope-item" onclick="navigateTo('page-letter3')">
+          <svg viewBox="0 0 100 70"><path d="M5 5H95V65H5V5Z" fill="#D9534F"/><path d="M5 5L50 38L95 5" stroke="#FBF3E4" stroke-width="3"/></svg>
+          <div class="envelope-label">Letter 3</div>
+        </div>
+        <div class="envelope-item" onclick="navigateTo('page-letter4')">
+          <svg viewBox="0 0 100 70"><path d="M5 5H95V65H5V5Z" fill="#C94440"/><path d="M5 5L50 38L95 5" stroke="#F5C361" stroke-width="3"/></svg>
+          <div class="envelope-label" style="color: var(--gold);">Love, from bestie</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: LETTER 1 INTERACTIVE DISPLAY -->
+    <div class="page" id="page-letter1">
+      <div class="eyebrow">Letter One</div>
+      <h3 class="dashboard-title" style="margin-bottom:15px;">Happy Birthday Bestie</h3>
+      <div class="letter-container">
+        <div class="polaroid-frame">
+          <img class="polaroid-placeholder" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop" alt="Bestie memory">
+        </div>
+        <div class="sticky-note">
+          ✨ <strong>Hey Bestie,</strong><br>
+          I am officially naming myself the best best best best friend in life because who else is building customized websites to hold your birthday surprises?! Hope you have the most beautiful day filled with smiles!
+        </div>
+      </div>
+      <button class="btn-back" onclick="navigateTo('page-dashboard')">Back</button>
+    </div>
+
+    <!-- PAGE 4: LETTER 2 VIRTUAL BOUQUET -->
+    <div class="page" id="page-letter2">
+      <div class="eyebrow">Letter Two</div>
+      <h3 class="dashboard-title" style="margin-bottom:5px;">Tadaaa....</h3>
+      <p style="color: var(--pink); font-style: italic; margin-bottom: 10px;">Here's your virtual bouquet!</p>
+      
+      <img class="bouquet-img" src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=300&auto=format&fit=crop" alt="Virtual Bouquet">
+
+      <ul class="bouquet-list">
+        <li>🌸 Every single flower has a personalized tag explaining exactly why I adore you layout-wise.</li>
+        <li>✨ Because you patiently endure my daily absolute whimpering without complaining.</li>
+        <li>🔥 Because you hype me up continuously like I'm a world-class rockstar headliner.</li>
+        <li>🧠 Because you listen to all my chaotic overthinking scripts at 2 AM.</li>
+        <li>⚓ Because you are the undisputed calm anchor at the center of all my wild life stories.</li>
+      </ul>
+      <button class="btn-back" onclick="navigateTo('page-dashboard')">Back</button>
+    </div>
+
+    <!-- PAGE 5: LETTER 3 MEMORIES COLLAGE -->
+    <div class="page" id="page-letter3">
+      <div class="eyebrow">Letter Three</div>
+      <h3 class="dashboard-title" style="margin-bottom:0px;">I Miss Us</h3>
+      <p style="color: var(--pink); letter-spacing: 0.2em; font-size: 0.8rem; text-transform: uppercase;">Together Matrix</p>
+      
+      <div class="collage-bg">
+        <div class="collage-photo">
+          <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=150&auto=format&fit=crop" alt="Memory 1">
+        </div>
+        <div class="collage-photo">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop" alt="Memory 2">
+        </div>
+        <div class="collage-photo">
+          <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop" alt="Memory 3">
+        </div>
+      </div>
+      <button class="btn-back" onclick="navigateTo('page-dashboard')">Back</button>
+    </div>
+
+    <!-- PAGE 6: LETTER 4 PIXEL CAKE & SEQUENTIAL BLOW STYLING -->
+    <div class="page" id="page-letter4">
+      <div class="eyebrow">Final Space</div>
+      <h3 class="dashboard-title" style="margin-bottom: 2px;">Happy Birthday, Friend!</h3>
+      <p id="mic-instruction" style="font-size:0.85rem; color: rgba(251,243,228,0.7); max-width:400px; margin: 0 auto 10px;">Click cake to start mic (or click again to blow candles manually) 🎂</p>
+      
+      <div class="pixel-cake-wrapper" id="pixel-cake-box" onclick="handleCakeClick()">
+        <svg class="pixel-cake" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 70h4v4h-4zM24 66h4v4h-4zM28 70h4v4h-4zM24 74h4v4h-4z" fill="#F0A6A6" opacity="0.6"/>
+          <path d="M136 70h4v4h-4zM140 66h4v4h-4zM144 70h4v4h-4zM140 74h4v4h-4z" fill="#F0A6A6" opacity="0.6"/>
+
+          <!-- Candle 0 (Leftmost) -->
+          <rect x="53" y="24" width="6" height="14" fill="#9C8CB9"/>
+          <rect x="54" y="25" width="2" height="12" fill="#C4B8E0"/>
+          <g id="flame-0" class="pixel-flame">
+            <path d="M55 16h2v6h-2z" fill="#F5C361"/>
+            <path d="M54 18h4v2h-4z" fill="#FFF"/>
+          </g>
+
+          <!-- Candle 1 -->
+          <rect x="73" y="20" width="6" height="18" fill="#E8D190"/>
+          <rect x="74" y="21" width="2" height="16" fill="#FDF3CE"/>
+          <g id="flame-1" class="pixel-flame">
+            <path d="M75 12h2v6h-2z" fill="#F5C361"/>
+            <path d="M74 14h4v2h-4z" fill="#FFF"/>
+          </g>
+
+          <!-- Candle 2 -->
+          <rect x="93" y="20" width="6" height="18" fill="#E8D190"/>
+          <rect x="94" y="21" width="2" height="16" fill="#FDF3CE"/>
+          <g id="flame-2" class="pixel-flame">
+            <path d="M95 12h2v6h-2z" fill="#F5C361"/>
+            <path d="M94 14h4v2h-4z" fill="#FFF"/>
+          </g>
+
+          <!-- Candle 3 (Rightmost) -->
+          <rect x="113" y="24" width="6" height="14" fill="#9C8CB9"/>
+          <rect x="114" y="25" width="2" height="12" fill="#C4B8E0"/>
+          <g id="flame-3" class="pixel-flame">
+            <path d="M115 16h2v6h-2z" fill="#F5C361"/>
+            <path d="M114 18h4v2h-4z" fill="#FFF"/>
+          </g>
+
+          <!-- Cake Layers -->
+          <path d="M35 38h90v24H35z" fill="#EFA2A2"/>
+          <path d="M35 62h10v6H35zM55 62h10v10H55zM75 62h10v6H75zM95 62h10v10H95zM115 62h10v6H115z" fill="#EFA2A2"/>
+          <path d="M42 45h4v4h-4zM65 48h4v4h-4zM90 44h4v4h-4zM112 50h4v4h-4z" fill="#FDF3CE" opacity="0.7"/>
+
+          <path d="M39 72h82v24H39z" fill="#FDF3CE"/>
+
+          <path d="M31 96h98v44H31z" fill="#EFA2A2"/>
+          <path d="M31 140h12v6H31zM51 140h12v10H51zM71 140h12v6H71zM91 140h12v10H91zM111 140h12v6H111z" fill="#EFA2A2"/>
+
+          <rect x="39" y="106" width="10" height="10" fill="#D9534F"/>
+          <path d="M41 106h2v2h-2zM44 109h2v2h-2zM41 112h2v2h-2z" fill="#FDF3CE"/>
+          <rect x="59" y="106" width="10" height="10" fill="#D9534F"/>
+          <path d="M61 106h2v2h-2zM64 109h2v2h-2zM61 112h2v2h-2z" fill="#FDF3CE"/>
+          <rect x="79" y="106" width="10" height="10" fill="#D9534F"/>
+          <path d="M81 106h2v2h-2zM84 109h2v2h-2zM81 112h2v2h-2z" fill="#FDF3CE"/>
+          <rect x="99" y="106" width="10" height="10" fill="#D9534F"/>
+          <path d="M101 106h2v2h-2zM104 109h2v2h-2zM101 112h2v2h-2z" fill="#FDF3CE"/>
+
+          <path d="M35 150h90v12H35z" fill="#FDF3CE"/>
+          <path d="M43 150h6v6h-6zM63 150h6v6h-6zM83 150h6v6h-6zM103 150h6v6h-6z" fill="#A47E5B"/>
+        </svg>
+      </div>
+
+      <div class="mic-status" id="mic-status-text">Click cake to start mic (or click again to blow manually)</div>
+
+      <div class="final-letter" id="final-message-card">
+        <h4 style="font-family:'Fraunces', serif; color:var(--gold); font-size:1.4rem; margin:0 0 10px 0;">Make a Wish!</h4>
+        Happy Birthday to the absolute most wonderful human being I know! You fill my life with an incredible amount of happiness, laughter, and light. I am endlessly thankful for every single beautiful memory we share together. You are my absolute confidant, my primary safe haven, and my everything. Hope this year brings you everything you wish for!
+      </div>
+      
+      <button class="btn-back" onclick="navigateTo('page-dashboard')" style="margin-top:15px;">Back</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const PASSCODE = "072205";
+
+  let entered = "";
+  const flamesEl = document.getElementById('flames');
+  const messageEl = document.getElementById('message');
+  const lockScreen = document.getElementById('lock-screen');
+  const reveal = document.getElementById('reveal');
+  const toast = document.getElementById('toast');
+
+  function buildFlames() {
+    flamesEl.innerHTML = "";
+    for (let i = 0; i < PASSCODE.length; i++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'flame';
+      wrap.innerHTML = `
+        <svg viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg">
+          <path class="flame-glow" d="M7 0 C7 5 2 6 2 11 C2 15.5 4.5 18 7 18 C9.5 18 12 15.5 12 11 C12 6 7 5 7 0 Z" />
+        </svg>`;
+      flamesEl.appendChild(wrap);
+    }
+  }
+  buildFlames();
+
+  function updateFlames() {
+    const flames = flamesEl.querySelectorAll('.flame');
+    flames.forEach((f, i) => {
+      f.classList.toggle('lit', i < entered.length);
+    });
+  }
+
+  function showMessage(text) {
+    messageEl.textContent = text;
+    messageEl.classList.add('show');
+    setTimeout(() => messageEl.classList.remove('show'), 1600);
+  }
+
+  function tryUnlock() {
+    if (entered === PASSCODE) {
+      toast.classList.add('show');
+      setTimeout(() => {
+        reveal.classList.add('show');
+        lockScreen.classList.add('unlocking');
+      }, 500);
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    } else {
+      flamesEl.classList.add('shake');
+      showMessage("that's not quite the date");
+      setTimeout(() => {
+        flamesEl.classList.remove('shake');
+        entered = "";
+        updateFlames();
+      }, 450);
+    }
+  }
+
+  function addDigit(d) {
+    if (entered.length >= PASSCODE.length) return;
+    entered += d;
+    updateFlames();
+    if (entered.length === PASSCODE.length) {
+      setTimeout(tryUnlock, 200);
+    }
+  }
+
+  document.getElementById('keypad').addEventListener('click', (e) => {
+    const key = e.target.closest('.key');
+    if (!key) return;
+    if (key.id === 'clear-key') {
+      entered = "";
+      updateFlames();
+      return;
+    }
+    if (key.id === 'back-key') {
+      entered = entered.slice(0, -1);
+      updateFlames();
+      return;
+    }
+    if (key.dataset.num !== undefined) {
+      addDigit(key.dataset.num);
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (/^[0-9]$/.test(e.key)) addDigit(e.key);
+    if (e.key === 'Backspace') {
+      entered = entered.slice(0, -1);
+      updateFlames();
+    }
+    if (e.key === 'Escape') {
+      entered = "";
+      updateFlames();
+    }
+  });
+
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 3.5) + 's';
+    starsEl.appendChild(s);
+  }
+
+  function navigateTo(pageId) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    
+    const targetPage = document.getElementById(pageId);
+    if(targetPage) {
+      targetPage.classList.add('active');
+    }
+  }
+
+  let audioContext = null;
+  let analyser = null;
+  let microphone = null;
+  let isListening = false;
+  let hasBlownOut = false;
+
+  function handleCakeClick() {
+    if (hasBlownOut) return;
+
+    if (!isListening) {
+      initMic();
+    } else {
+      triggerCandlesBlown();
+    }
+  }
+
+  function initMic() {
+    const statusText = document.getElementById('mic-status-text');
+    const instruction = document.getElementById('mic-instruction');
+    
+    statusText.textContent = "Requesting microphone access... (Click cake again to skip)";
+
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then((stream) => {
+        isListening = true;
+        statusText.textContent = "Listening... Blow into your microphone!";
+        instruction.textContent = "Blow close to your mic, or click the cake to blow manually!";
+
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+        analyser.fftSize = 256;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function detectBlow() {
+          if (!isListening || hasBlownOut) return;
+          analyser.getByteFrequencyData(dataArray);
+
+          let sum = 0;
+          for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+          }
+          let average = sum / bufferLength;
+
+          if (average > 30) {
+            triggerCandlesBlown();
+            stream.getTracks().forEach(track => track.stop());
+            isListening = false;
+            return;
+          }
+
+          requestAnimationFrame(detectBlow);
+        }
+
+        detectBlow();
+      })
+      .catch((err) => {
+        console.error(err);
+        statusText.textContent = "Mic unavailable. Click the cake directly to blow out candles!";
+      });
+  }
+
+  function triggerCandlesBlown() {
+    if (hasBlownOut) return;
+    hasBlownOut = true;
+    isListening = false;
+
+    const cakeWrapper = document.getElementById('pixel-cake-box');
+    const msgCard = document.getElementById('final-message-card');
+    const statusText = document.getElementById('mic-status-text');
+    const instruction = document.getElementById('mic-instruction');
+
+    statusText.textContent = "✨ Blowing out candles one by one...";
+    instruction.style.display = 'none';
+
+    // Extinguish candles sequentially one by one every 400ms
+    const totalCandles = 4;
+    for (let i = 0; i < totalCandles; i++) {
+      setTimeout(() => {
+        cakeWrapper.classList.add(`extinguish-${i}`);
+        if (i === totalCandles - 1) {
+          statusText.textContent = "✨ All candles blown out successfully!";
+          setTimeout(() => {
+            msgCard.style.display = 'block';
+          }, 600);
+        }
+      }, i * 400);
+    }
+  }
+</script>
+
+</body>
+</html>
