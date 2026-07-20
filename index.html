@@ -390,21 +390,26 @@
   }
   .polaroid-frame {
     background: white;
-    padding: 14px 14px 40px;
+    padding: 12px 12px 35px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     transform: rotate(-3deg);
     border-radius: 2px;
-    max-width: 260px;
+    width: 100%;
+    max-width: 240px;
     transition: transform 0.3s ease;
   }
   .polaroid-frame:hover {
     transform: rotate(0deg) scale(1.03);
   }
-  .polaroid-placeholder {
-    width: 232px;
-    height: 232px;
+  /* Fix for Letter 1 image responsiveness */
+  .polaroid-frame img,
+  .picnimahal.png {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     background: #e0e0e0;
     object-fit: cover;
+    display: block;
   }
   .sticky-note {
     background: #fff9c4;
@@ -414,6 +419,7 @@
     border-radius: 4px;
     box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
     transform: rotate(2deg);
+    width: 100%;
     max-width: 340px;
     font-size: 0.9rem;
     line-height: 1.5;
@@ -421,17 +427,25 @@
   }
 
   /* --- SCREEN 4: LETTER 2 (VIRTUAL BOUQUET) --- */
-  .bouquet-img {
-    width: 140px;
-    height: 140px;
+  /* Fix for Letter 2 flower image responsiveness */
+  .bouquet-img,
+  .flower.png {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 50%;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     margin-bottom: 15px;
     border: 2px solid var(--pink);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
   .bouquet-list {
     text-align: left;
+    width: 100%;
     max-width: 480px;
     margin: 20px 0 0;
     padding: 0;
@@ -454,19 +468,23 @@
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 20px;
+    width: 100%;
   }
   .collage-photo {
     background: #fff;
-    padding: 8px 8px 24px;
+    padding: 8px 8px 20px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    max-width: 140px;
+    width: 130px;
+    max-width: 30vw;
     border-radius: 2px;
   }
   .collage-photo img {
-    width: 124px;
-    height: 124px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
     background: #ccc;
     object-fit: cover;
+    display: block;
   }
   .collage-photo:nth-child(even) { transform: rotate(4deg); }
   .collage-photo:nth-child(odd) { transform: rotate(-4deg); }
@@ -944,7 +962,6 @@
     statusText.textContent = "✨ Blowing out candles one by one...";
     instruction.style.display = 'none';
 
-    // Extinguish candles sequentially one by one every 400ms
     const totalCandles = 4;
     for (let i = 0; i < totalCandles; i++) {
       setTimeout(() => {
